@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css">
+    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+</head>
+<style>
+    #map {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+    }
+</style>
+
+<body>
+    <div id="map"></div>
+</body>
+<script>
+    const map = new maplibregl.Map({
+        container: 'map', // container id
+        style:'osm_liberty.json',
+        center: [-74.25945,40.72601], // starting position
+        zoom: 13 // starting zoom
+    });
+</script>
+</html>
