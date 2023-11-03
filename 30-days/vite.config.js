@@ -5,5 +5,7 @@ export default defineConfig({
     plugins: [glsl()],
     build:{
         outDir: '../Day2'
-    }
+    },
+    base: "Day2/",
+  publicPath: "Day2/"
 });
