@@ -6,6 +6,6 @@ export default defineConfig({
     build:{
         outDir: '../Day2'
     },
-    base: "Day2/",
-  publicPath: "Day2/"
+    base: "./30-Day-Map-Challenge/Day2/",
+  publicPath: "./30-Day-Map-Challenge/Day2/"
 });
