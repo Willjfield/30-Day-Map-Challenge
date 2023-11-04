@@ -1,80 +1,66 @@
 import maplibregl from 'maplibre-gl';
-import hike from './assets/hike_data.json';
+import maplewood from './assets/pest_4326.json';
+import MapLibreShaderLayer from './ShaderLayer';
+import frag from './assets/frag.glsl';
+
 const map = new maplibregl.Map({
   container: 'map', // container id
-  style: {
-    "version": 8,
-    "name": "hike",
-    "sources": {
-      "hike-src": {
-        "type": "geojson",
-        "data": hike
-      },
-    },
-    "layers": [{
-      "id": "hike",
-      "type": "line",
-      "source": "hike-src"
-    }]
-  },
+  style: 'assets/osm_liberty.json',
   hash: true,
+  antialias: true,
   center: [-74.25945, 40.72601], // starting position
   zoom: 9 // starting zoom
 });
 
-function pointOnPath(tick) {
-  const speed = 20;
 
-  const modTick = (tick/speed)%(hike.features[0].geometry.coordinates.length-1);
-
-
-  let idx = Math.floor(modTick);
-
-  const coords = hike.features[0].geometry.coordinates[idx];
-  const coords_next = hike.features[0].geometry.coordinates[idx + 1];
- 
-  const lerpAmnt = modTick % 1;
-  console.log(lerpAmnt)
-  const lerp_lat = coords[0] + (coords_next[0] - coords[0]) * lerpAmnt;
-
-  const lerp_lon = coords[1] + (coords_next[1] - coords[1]) * lerpAmnt;
-
-  return {
-    'type': 'Point',
-    'coordinates': [lerp_lat, lerp_lon]
-  };
-}
 
 map.on('load', () => {
   // Add a source and layer displaying a point which will be animated in a circle.
-  map.addSource('point', {
+  map.addSource('mapwd-src', {
     'type': 'geojson',
-    'data': pointOnPath(0)
+    'data': maplewood
   });
 
   map.addLayer({
-    'id': 'point',
-    'source': 'point',
-    'type': 'circle',
+    'id': 'maplewood',
+    'source': 'mapwd-src',
+    'type': 'fill',
     'paint': {
-      'circle-radius': 5,
-      'circle-color': '#fff0',
-      'circle-stroke-width': 1,
-      'circle-stroke-color': '#000'
-    }
+      'fill-color': '#000000',
+      'fill-opacity': 0.5
+    },
+    filter: ['all', ['!=', ['get', 'PEST_USE'], 'N'], ['!=', ['get', 'PEST_USE'], null]]
   });
 
-  function animateMarker(timestamp) {
-    // Update the data to a new position based on the animation timestamp. The
-    // divisor in the expression `timestamp / 1000` controls the animation speed.
-    map.getSource('point').setData(pointOnPath(timestamp));
-    //  console.log(pointOnPath(timestamp).coordinates)
-    // Request the next frame of the animation.
-    requestAnimationFrame(animateMarker);
+  let shadeLayer = new MapLibreShaderLayer(map, 'maplewood-shade', ['maplewood'], { fragmentSource: frag,animate: animation });
+  window.addEventListener('resize', () => {
+    updateResolution();
+  });
+  function updateResolution() {
+    const gl = shadeLayer.context;
+    const prog = shadeLayer.program;
+    const u_resolutionLocation = gl.getUniformLocation(prog, 'u_resolution');
+    gl.uniform2fv(u_resolutionLocation, [map.getContainer().offsetWidth, map.getContainer().offsetHeight]);
+
+  }
+  let frameNum = 0;
+  function animation(_slayer) {
+    frameNum++;
+    frameNum++;
+    const gl = _slayer.context;
+    const prog = _slayer.program;
+
+    gl.useProgram(prog);
+    let u_frame= gl.getUniformLocation(prog, 'u_frame');
+    gl.uniform1f(u_frame, frameNum);
+
+    map.triggerRepaint();
+    requestAnimationFrame(() => { animation(_slayer) });
   }
 
-  // Start the animation.
-  animateMarker(0);
+
+  map.on('move',()=> shadeLayer.updateMapBBox());
+  map.addLayer(shadeLayer);
 });
 
 
