@@ -53,6 +53,8 @@ export default class MapLibreShaderLayer {
 
         this.addedBuffers = {};
         this.attrPositions = {};
+
+        this.frameNo = 0;
     }
 
     // method called when the layer is added to the map
@@ -111,6 +113,7 @@ export default class MapLibreShaderLayer {
 
     // method fired on each animation frame
     render(gl, matrix) {
+        this.frameNo++;
         this.matrix = matrix;
 
         this.calculateVertices(gl);
@@ -159,14 +162,15 @@ export default class MapLibreShaderLayer {
 
         for (var i = 0; i < triangles.length; i++) {
             if (typeof data.vertices[triangles[i] * 2] === 'number'
-                && typeof data.vertices[triangles[i] * 2 + 1] === 'number') {
+                && typeof data.vertices[triangles[i] * 2 + 1] === 'number'
+                && data.vertices[triangles[i] * 2 + 1] % (this.frameNo % 10) < Math.random() * 20) {
                 const mercPos = maplibregl.MercatorCoordinate.fromLngLat({
                     lng: data.vertices[triangles[i] * 2],
                     lat: data.vertices[triangles[i] * 2 + 1]
                 });
                 this.positions.push(mercPos.x, mercPos.y);
             } else {
-                console.error('Error in coordinatesToPositions', data.vertices[triangles[i] * 2], data.vertices[triangles[i] * 2 + 1]);
+                //console.error('Error in coordinatesToPositions', data.vertices[triangles[i] * 2], data.vertices[triangles[i] * 2 + 1]);
             }
         }
     }

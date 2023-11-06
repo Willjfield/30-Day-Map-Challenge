@@ -8,31 +8,18 @@ const map = new maplibregl.Map({
   style: 'assets/osm_liberty.json',
   hash: true,
   antialias: true,
-  center: [-74.25945, 40.72601], // starting position
-  zoom: 9 // starting zoom
+  center: [-83.94, 45.28], // starting position
+  zoom: 5// starting zoom
 });
 
 
 
 map.on('load', () => {
   // Add a source and layer displaying a point which will be animated in a circle.
-  map.addSource('mapwd-src', {
-    'type': 'geojson',
-    'data': maplewood
-  });
 
-  map.addLayer({
-    'id': 'maplewood',
-    'source': 'mapwd-src',
-    'type': 'fill',
-    'paint': {
-      'fill-color': '#000000',
-      'fill-opacity': 0.5
-    },
-    filter: ['all', ['!=', ['get', 'PEST_USE'], 'N'], ['!=', ['get', 'PEST_USE'], null]]
-  });
 
-  let shadeLayer = new MapLibreShaderLayer(map, 'maplewood-shade', ['maplewood'], { fragmentSource: frag,animate: animation });
+
+  let shadeLayer = new MapLibreShaderLayer(map, 'water-glitch', ['water'], { fragmentSource: frag, animate: animation });
   window.addEventListener('resize', () => {
     updateResolution();
   });
@@ -51,7 +38,7 @@ map.on('load', () => {
     const prog = _slayer.program;
 
     gl.useProgram(prog);
-    let u_frame= gl.getUniformLocation(prog, 'u_frame');
+    let u_frame = gl.getUniformLocation(prog, 'u_frame');
     gl.uniform1f(u_frame, frameNum);
 
     map.triggerRepaint();
@@ -59,7 +46,7 @@ map.on('load', () => {
   }
 
 
-  map.on('move',()=> shadeLayer.updateMapBBox());
+  map.on('move', () => shadeLayer.updateMapBBox());
   map.addLayer(shadeLayer);
 });
 
