@@ -13,10 +13,14 @@
     "vite-plugin-glsl": "^1.1.2"
   },
   "dependencies": {
+    "@deck.gl/aggregation-layers": "^8.8.0",
+    "@deck.gl/core": "^8.8.0",
+    "@deck.gl/layers": "^8.8.0",
+    "@deck.gl/mapbox": "^8.9.32",
     "@mapbox/point-geometry": "^0.1.0",
     "axios": "^1.6.1",
     "bootstrap": "^5.3.1",
-    "deck.gl": "^8.9.32",
+    "cesium": "^1.111.0",
     "earcut": "^2.2.4",
     "maplibre-gl": "^3.3.0",
     "proj4": "^2.9.1",
